@@ -1,3 +1,4 @@
+#! /usr/bin/env node
 import fs from 'fs/promises'
 import fetch from 'node-fetch'
 const { PROP_ID_API_KEY, PROP_ID_ACCESS_TOKEN } = process.env
