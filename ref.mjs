@@ -1,15 +1,15 @@
 #! /usr/bin/env node
-import fs from 'fs/promises'
 import fetch from 'node-fetch'
+
 const { PROP_ID_API_KEY, PROP_ID_ACCESS_TOKEN } = process.env
 
 const STDIN_TIMEOUT = 50
 
 const main = async () => {
 
-	let propId = process.argv[2]
+	let propIds = [process.argv[2]].filter(x => !!x)
 
-	if(!propId) {
+	if(propIds.length === 0) {
 		process.stdin.resume();
 		process.stdin.setEncoding('utf8');
 	
@@ -19,24 +19,28 @@ const main = async () => {
 			new Promise(resolve => process.stdin.on('end', resolve)),
 			new Promise(resolve => setTimeout(resolve, STDIN_TIMEOUT)),
 		])
-		propId = data.replace(/[\n\r]+$/, '')
-	
+		propIds = data
+			.split(/[\n\r]/)
+			.filter(x => !!x)
+			.map(id => id.trim())	
 	}
 
-	if(!propId) {
-		throw new Error('No propId.')
+	if(propIds.length === 0) {
+		throw new Error('No propIds.')
 	}
 
-	const resp = await fetch(`https://api.propid.jp/v1/${propId}?api-key=${PROP_ID_API_KEY}`, {
-		"headers": {
+	const result = []
+
+	for (const propId of propIds) {
+		const resp = await fetch(`https://api.propid.jp/v1/${propId}?api-key=${PROP_ID_API_KEY}`, {
+			"headers": {
 			'x-access-token': PROP_ID_ACCESS_TOKEN
-		}
-	});
-	if(resp.status > 399) {
-		throw new Error(`Request with ${propId} ends with status code ${resp.status}.`)
+			}
+		});
+		const body = await resp.json()
+		result.push({ status: resp.status, body })
 	}
-	const body = await resp.json()
-	process.stdout.write(JSON.stringify(body) + '\n')
+	process.stdout.write(JSON.stringify(result) + '\n')
 }
 
 main()
