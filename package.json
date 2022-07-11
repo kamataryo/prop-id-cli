@@ -1,6 +1,6 @@
 {
   "name": "@kamataryo/prop-id-cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "bin": "ref.mjs",
   "repository": "git@github.com:kamataryo/prop-id-cli.git",
   "author": "kamataryo <kamataryo@users.noreply.github.com>",
